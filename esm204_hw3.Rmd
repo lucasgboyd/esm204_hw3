@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+author: "Lucas Boyd"
+date: "5/6/2022"
+output: html_document
+---
+
+```{r setup, include = TRUE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(here)
+library(tidyverse)
+library(janitor)
+library(broom)
+```
+
+```{r}
+electricity <- read_csv(here("HW3_data.csv")) %>% 
+  clean_names() %>% 
+  select(-1)
+
+```
+## Functions
+```{r}
+model_demand_l <- lm(price_cents  ~ q_low_kwh, data = electricity)
+model_demand_h <- lm(price_cents ~ q_high_kwh, data = electricity)
+
+# need to rearrange the parameter to get Q(P)! 
+
+# Qgg = Qlow(P) + Qlow(h) 
+
+# Importantly, since they-intercepts are different, we know that Qagg(P) will have a kink. I include an ifelse() statement to take care of the kink.
+
+# define a function to get demand
+demand <- function(p, model){
+  q <- (p - model$coefficients[[1]])/model$coefficients[[2]]
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
+# for each p level, return estimated aggregate demand
+demand_agg <- function(p){
+  q <- demand(p, model_demand_l) + demand(p, model_demand_h)
+  return(q)
+}
+
+# I also define functions for calculating the consumer surplus:
+CS <- function(p, model){
+  q <- demand(p, model)
+  cs <- 0.5*(model$coefficients[[1]] - p)*q
+  return(cs)
+}
+
+CS_agg <- function(p){
+  cs <- CS(p,model_demand_l) + CS(p,model_demand_h)
+  return(cs)
+}
+```
+
+```{r}
+# creating a table for demand based on the linear model
+price_vector <- c(0:35)
+table <- data.frame(price_vector)
+demand_table <- table %>% 
+  mutate(demand_low = demand(price_vector, model = model_demand_l)) %>% 
+  mutate(demand_high = demand(price_vector, model = model_demand_h)) %>% 
+  mutate(demand_agg = demand_agg(price_vector)) %>% 
+  rename(price_cents = price_vector) %>% 
+  mutate(marginal_cost = price_cents*demand_agg(10)/10) # marginal cost to produce
+
+demand_table_longer <- demand_table %>% 
+  pivot_longer(2:5, names_to = "demand_level", values_to = "demand")
+
+# plotting supply and demand
+ggplot(data = demand_table_longer, aes(x = demand, y = price_cents, color = demand_level)) +
+  geom_line(size = 1) +
+  theme_minimal(14) +
+  scale_color_manual(values = c("firebrick", "cyan4", "forestgreen", "black")) +
+  scale_x_continuous(limits = c(0, 9e+05)) +
+  theme(legend.position = c(0.8, 0.7))
+
+```
+
+
+
+
