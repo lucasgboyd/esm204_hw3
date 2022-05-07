@@ -17,7 +17,6 @@ library(broom)
 electricity <- read_csv(here("HW3_data.csv")) %>% 
   clean_names() %>% 
   select(-1)
-
 ```
 ## Functions
 ```{r}
@@ -54,6 +53,12 @@ CS_agg <- function(p){
   cs <- CS(p,model_demand_l) + CS(p,model_demand_h)
   return(cs)
 }
+
+# marginal cost function
+mc <- function(p){
+  mc <- p*(demand_agg(10)/10)
+  return(mc)
+}
 ```
 
 ```{r}
@@ -65,7 +70,7 @@ demand_table <- table %>%
   mutate(demand_high = demand(price_vector, model = model_demand_h)) %>% 
   mutate(demand_agg = demand_agg(price_vector)) %>% 
   rename(price_cents = price_vector) %>% 
-  mutate(marginal_cost = price_cents*demand_agg(10)/10) # marginal cost to produce
+  mutate(marginal_cost = mc(price_cents)) # marginal cost to produce
 
 demand_table_longer <- demand_table %>% 
   pivot_longer(2:5, names_to = "demand_level", values_to = "demand")
