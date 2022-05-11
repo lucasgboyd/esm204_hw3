@@ -276,9 +276,9 @@ data.frame(party, interim_price)
 
 **Overall welfare of “high” income consumers:** $`r round(welfare_h_5, 2)`
 
-**Overall welfare of “low” income consumers:** $`r round(welfare_l_5, 2)`, meaning there is a net loss of welfare to low income consumers
+**Overall welfare of “low” income consumers:** $`r round(welfare_l_5, 2)`
 
-**Welfare to power suppliers:** $`r round(ps_5/100, 3)`
+**Welfare to power suppliers:** $`r round(ps_5, 3)`
 
 ***
 #### SCC = $75
@@ -312,16 +312,16 @@ uniroot_after_tax <- uniroot(function(p)
 price_after_tax <- uniroot_after_tax$root
 
 # total environmental damage
-enviro_damage_after_tax <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+enviro_damage_after_tax <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
   
-tax_revenue <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+tax_revenue <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # amount of electricity consumed after tax
 consumption_after_tax <- demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # overall welfare to high and low income consumers
-cs_high_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_h)
-cs_low_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_l) - enviro_damage_after_tax
+cs_high_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_h)
+cs_low_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_l) - enviro_damage_after_tax
 
 # welfare for electricity producer
 PS_after_tax <- function(p, mec){
@@ -337,7 +337,7 @@ ps_5 <- ps_after_tax/100
 
 **Overall welfare of “high” income consumers:** $`r round(welfare_h_5, 2)`
 
-**Overall welfare of “low” income consumers:** $`r round(welfare_l_5, 2)`, meaning there is a net loss of welfare to low income consumers
+**Overall welfare of “low” income consumers:** $`r round(welfare_l_5, 2)`
 
 **Welfare to power suppliers:** $`r round(ps_5, 3)`
 
@@ -377,16 +377,16 @@ uniroot_after_tax <- uniroot(function(p)
 price_after_tax <- uniroot_after_tax$root
 
 # total environmental damage
-enviro_damage_after_tax <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+enviro_damage_after_tax <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
   
-tax_revenue <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+tax_revenue <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # amount of electricity consumed after tax
 consumption_after_tax <- demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # overall welfare to high and low income consumers
-cs_high_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_h)
-cs_low_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_l) - enviro_damage_after_tax
+cs_high_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_h)
+cs_low_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_l) - enviro_damage_after_tax
 
 # welfare for electricity producer
 PS_after_tax <- function(p, mec){
@@ -443,16 +443,16 @@ uniroot_after_tax <- uniroot(function(p)
 price_after_tax <- uniroot_after_tax$root
 
 # total environmental damage
-enviro_damage_after_tax <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+enviro_damage_after_tax <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
   
-tax_revenue <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+tax_revenue <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # amount of electricity consumed after tax
 consumption_after_tax <- demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # overall welfare to high and low income consumers
-cs_high_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_h)
-cs_low_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_l) - enviro_damage_after_tax
+cs_high_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_h)
+cs_low_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_l) - enviro_damage_after_tax
 
 # welfare for electricity producer
 PS_after_tax <- function(p, mec){
@@ -507,16 +507,16 @@ uniroot_after_tax <- uniroot(function(p)
 price_after_tax <- uniroot_after_tax$root
 
 # total environmental damage
-enviro_damage_after_tax <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+enviro_damage_after_tax <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
   
-tax_revenue <- mec_cents*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
+tax_revenue <- scc(scc5)*demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # amount of electricity consumed after tax
 consumption_after_tax <- demand_agg_after_tax(price_after_tax, mec = scc(scc5))
 
 # overall welfare to high and low income consumers
-cs_high_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_h)
-cs_low_after_tax <- CS(p = price_after_tax + mec_cents, model = model_demand_l) - enviro_damage_after_tax
+cs_high_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_h)
+cs_low_after_tax <- CS(p = price_after_tax + scc(scc5), model = model_demand_l) - enviro_damage_after_tax
 
 # welfare for electricity producer
 PS_after_tax <- function(p, mec){
