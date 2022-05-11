@@ -61,12 +61,16 @@ CS_agg <- function(p){
   return(cs)
 }
 
-# marginal cost
-mc_slope <- demand_agg(10)/10
+# marginal cost functions
+mc_slope <- 10/demand_agg(10)
 # marginal cost function
-mc <- function(p){
-  mc <- p*(mc_slope)
-  return(mc)
+mc <- function(q){
+  p <- q*(mc_slope)
+  return(p)
+}
+
+mc_q <- function(p){
+  p/mc_slope
 }
 
 # determining marginal external cost
@@ -76,8 +80,8 @@ mec_cents <- (0.85/metric_ton)*100*51
 ```
 
 ### Visualization
-
-```{r}
+FIGURE THIS OUT
+```{r, include = FALSE}
 # creating a table for demand based on the linear model
 price_vector <- c(0:35)
 table <- data.frame(price_vector)
@@ -86,11 +90,7 @@ demand_table <- table %>%
   mutate(demand_high = demand(price_vector, model = model_demand_h)) %>% 
   mutate(demand_agg = demand_agg(price_vector)) %>% 
   rename(price_cents = price_vector) %>% 
-  mutate(marginal_cost = mc(price_cents))
-
-# aggregate demand curve
-model_demand_agg <- lm(price_cents ~ demand_agg, data = demand_table)
-
+  mutate(marginal_cost = mc(demand_agg))
 
 demand_table_longer <- demand_table %>% 
   pivot_longer(2:5, names_to = "demand_level", values_to = "demand")
@@ -102,7 +102,7 @@ ggplot(data = demand_table_longer, aes(x = demand, y = price_cents, color = dema
   scale_color_manual(values = c("darkblue", "cyan4", "cadetblue3", "black", "firebrick")) +
   scale_x_continuous(limits = c(1, 9e+05)) +
   theme(legend.position = c(0.8, 0.7)) + 
-  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents + 1/(mc_slope)*demand),
+  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents + mc_slope*demand),
             color = "forestgreen",
             size = 1) +
   geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents),
@@ -143,11 +143,13 @@ enviro_cost_3 <- mec_cents*demand_agg(10) # environmental cost
 
 **Aggregate demand curve:** To find the aggregate demand curve, horizontally sum the two demand curves above. **FIND ANSWER TO THIS**
 
-**Supply curve:** P = `r round(mc_slope, 2)`Q
+**Supply curve:** P = `r round(mc_slope, 6)`Q
 
 **Consumer benefit:** \$`r round(cs2/100, 2)` 
 
 **Producer benefit:** \$`r round(ps2/100, 2)`
+
+**Environmental Cost:** $`r round(enviro_cost_3/100, 2)`
 
 ### 3. Consumer benefit by population
 
@@ -165,18 +167,72 @@ cs_high3 <- CS(10, model = model_demand_h)
 ### 4. Optimal electricity tax
 
 ```{r}
+# finding the new demand curve under the tax 
+demand_after_tax <- function(p, model){
+  q <- (p - model$coefficients[[1]] + mec_cents)/model$coefficients[[2]]
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
+# aggregate demand curve function after tax
+demand_agg_after_tax <- function(p){
+  q <- demand_after_tax(p, model_demand_l) + demand_after_tax(p, model_demand_h)
+  return(q)
+}
+# setting the functions equal to determine new equilibrium price after tax
+uniroot_after_tax <- uniroot(function(p)
+  demand_agg_after_tax(p) - mc_q(p),
+        interval = c(0,20))
+
+# new consumer surplus function
+CS_after_tax <- function(p, model){
+  q <- demand_after_tax(p, model)
+  cs <- 0.5*(model$coefficients[[1]] - p)*q
+  return(cs)
+}
+
+price_after_tax<- uniroot_after_tax$root
+
+# amount of electricity consumed after tax
+demand_agg_after_tax<- demand_agg_after_tax(price_after_tax)
+
+# overall welfare to high and low income consumers
+cs_high_after_tax <- 
+cs_low_after_tax <- 
+
+# welfare for electricity producer
+ps_after_tax <- 
+  
+  
+# total environmental damage
+enviro_damage_after_tax <- mec_cents*demand_agg_after_tax(price_after_tax)
+  
+tax_revenue <- mec_cents*demand_agg_after_tax(price_after_tax)
 
 ```
 
-A. The amount of electricity produced and consumed: 
-B. The price of electricity
-C. Overall welfare of “high” income consumers
-D. Overall welfare of “low” income consumers
-E. Power suppliers (i.e., electricity producers)
-F. Total environmental damage
-G. Total tax revenue generated
+**Optimal Electricity Tax:** `r round(mec_cents, 2)` cents
+
+A. **The amount of electricity produced and consumed:** `r round(demand_agg_after_tax, 2)`kWh
+
+B. **The price of electricity:** `r round(price_after_tax, 2)` cents per kWh before the tax is applied
+
+C. **Overall welfare of “high” income consumers:** $`r round(cs_high_after_tax/100, 2)`
+
+D. **Overall welfare of “low” income consumers:** $`r round(cs_low_after_tax/100, 2)`
+
+E. **Power suppliers:** $`r round(ps_after_tax/100, 3)`
+
+F. **Total environmental damage:** $`r round(enviro_damage_after_tax/100, 2)`
+
+G. **Total tax revenue generated:** $`r round(tax_revenue/100, 2)`
 
 ### 5. Tax redistribution
+
+```{r}
+# calculating relative electricity use under the status quo 
+
+```
 
 Make a table for this that includes:
 (a) Overall welfare of “high” income consumers
