@@ -91,40 +91,6 @@ mec_cents <- (0.85/metric_ton)*100*51
 
 ```
 
-### Visualization
-FIGURE THIS OUT
-```{r, include = FALSE}
-# creating a table for demand based on the linear model
-price_vector <- c(0:35)
-table <- data.frame(price_vector)
-demand_table <- table %>% 
-  mutate(demand_low = demand(price_vector, model = model_demand_l)) %>% 
-  mutate(demand_high = demand(price_vector, model = model_demand_h)) %>% 
-  mutate(demand_agg = demand_agg(price_vector)) %>% 
-  rename(price_cents = price_vector) %>% 
-  mutate(marginal_cost = mc(demand_agg))
-
-demand_table_longer <- demand_table %>% 
-  pivot_longer(2:5, names_to = "demand_level", values_to = "demand")
-
-# plotting supply and demand
-ggplot(data = demand_table_longer, aes(x = demand, y = price_cents, color = demand_level)) +
-  geom_line(size = 1) +
-  theme_minimal(14) +
-  scale_color_manual(values = c("darkblue", "cyan4", "cadetblue3", "black", "firebrick")) +
-  scale_x_continuous(limits = c(1, 9e+05)) +
-  theme(legend.position = c(0.8, 0.7)) + 
-  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents + mc_slope*demand),
-            color = "forestgreen",
-            size = 1) +
-  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents),
-            color = "firebrick",
-            size = 1) +
-  labs(x = "kWh electricity used", y= "Price (cents)") +
-  theme(legend.title = element_blank())
-
-```
-
 ### 1. Price per kwh of electricity
 
 ```{r}
@@ -137,6 +103,41 @@ price_per_kwh_cents<- (0.85/metric_ton)*100*51
 ***
 
 ### 2. Supply and demand curves, consumer/producer benefits
+
+```{r}
+# creating a table for demand based on the linear model
+price_vector <- c(0:35)
+table <- data.frame(price_vector)
+demand_table <- table %>% 
+  mutate(demand_low = demand(price_vector, model = model_demand_l)) %>% 
+  mutate(demand_high = demand(price_vector, model = model_demand_h)) %>% 
+  mutate(demand_agg = demand_agg(price_vector)) %>% 
+  rename(price_cents = price_vector)
+
+demand_table_longer <- demand_table %>% 
+  pivot_longer(2:4, names_to = "demand_level", values_to = "demand")
+
+# plotting supply and demand
+ggplot(data = demand_table_longer, aes(x = demand, y = price_cents, color = demand_level)) +
+  geom_line(size = 1) +
+  theme_minimal(14) +
+  scale_color_manual(values = c("darkblue", "cyan4", "cadetblue3", "black", "firebrick")) +
+  scale_x_continuous(limits = c(1, 9e+05)) +
+  theme(legend.position = "none") + 
+  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents + mc_slope*demand),
+            color = "goldenrod4",
+            size = 1) +
+  geom_line(data = demand_table_longer, aes(x = demand, y = mec_cents),
+            color = "firebrick",
+            size = 1) +
+  labs(x = "kWh electricity used", y= "Price (cents)") +
+  theme(legend.title = element_blank()) +
+  geom_text(aes(label = "Low income demand", x = 140000, y = 11), angle = -61, size = 3, color = "cadetblue3") +
+  geom_text(aes(label = "High income demand", x = 370000, y = 14), angle = -43, size = 3, color = "cyan4") +
+  geom_text(aes(label = "Aggregate demand", x = 620000, y = 8.3), angle = -31, size = 3, color = "darkblue") +
+  geom_text(aes(label = "Supply", x = 750000, y = 17), angle =15, size = 3, color = "goldenrod4") +
+  geom_text(aes(label = "Environmental damage", x = 350000, y = 3), size = 3, color = "Firebrick")
+```
 
 ```{r}
 # storing slopes and intercepts of each equation to report inline code 
@@ -541,6 +542,7 @@ ps_5 <- ps_after_tax/100
 ### 6. Solar generation
 
 ```{r}
+# demand fucntion after tax
 demand6 <- function(p, model){
   q <- (p - (0.5*model$coefficients[1]))/model$coefficients[2]
   q <- ifelse(q<0,0,q)
@@ -562,14 +564,17 @@ price_after_tax <- uniroot_after_tax$root
 electricity6 <- demand_agg6(price_after_tax)
 
 enviro_cost_6 <- electricity6*mec_cents
+
+
+# need to cut environmental cost nearly in half, so we divide the tax by that amount
+c6 <- (mec_cents/(enviro_cost_6/9478))*100
 ```
 
-**Total electricity consumption:** `r round(electricity6, 2)` kWh
+A. **Total electricity consumption:** `r round(electricity6, 2)` kWh
 
-**Total environmental externality:** $`r round(enviro_cost_6/100, 2)`
+B. **Total environmental externality:** $`r round(enviro_cost_6/100, 2)`
 
-(c) What value of the electricity tax makes the total environmental damage the same as the
-damage when solar panels are available to the high income group?
+C. **Tax to lower environmental damage to level with solar panels:** `r round(c6, 2)` cents
 
 
 
