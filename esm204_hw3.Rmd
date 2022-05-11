@@ -536,6 +536,8 @@ ps_5 <- ps_after_tax/100
 
 **Welfare to power suppliers:** $`r round(ps_5, 3)`
 
+***
+
 ### 6. Solar generation
 
 ```{r}
@@ -550,20 +552,22 @@ demand_agg6 <- function(p){
   q <- demand6(p, model_demand_l) + demand6(p, model_demand_h)
   return(q)
 }
-# setting the functions equal to determine new equilibrium price after tax
+# setting the functions equal to determine new equilibrium price
 uniroot_after_tax <- uniroot(function(p)
   demand_agg6(p) - mc_q(p),
         interval = c(0,20))
 
 price_after_tax <- uniroot_after_tax$root
 
-demand_agg6(price_after_tax)
+electricity6 <- demand_agg6(price_after_tax)
 
-electricity
+enviro_cost_6 <- electricity6*mec_cents
 ```
 
-(a) What is total electricity consumption?
-(b) What is the total environmental externality?
+**Total electricity consumption:** `r round(electricity6, 2)` kWh
+
+**Total environmental externality:** $`r round(enviro_cost_6/100, 2)`
+
 (c) What value of the electricity tax makes the total environmental damage the same as the
 damage when solar panels are available to the high income group?
 
